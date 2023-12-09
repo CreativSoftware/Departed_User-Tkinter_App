@@ -23,7 +23,7 @@ def validate():
 
     $credentials = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $username, $securePwd
     try {{
-        $session = New-PSSession -ComputerName 'doidc02' -Credential $credentials -ErrorAction Stop
+        $session = New-PSSession -ComputerName 'ServerName' -Credential $credentials -ErrorAction Stop
         Remove-PSSession $session
         Write-Output 'Authentication successful'
     }} catch {{
@@ -96,7 +96,7 @@ def submit():
 
         $selected_datetime = '{formatted_selected_datetime}'
         $departedUser = '{departedUser}'
-        Invoke-Command -ComputerName "doidc02" -Credential $credentials -ScriptBlock {{
+        Invoke-Command -ComputerName "ServerName" -Credential $credentials -ScriptBlock {{
             param (
                 $departedUser,
                 $selected_datetime
@@ -127,7 +127,7 @@ def submit():
         $credentials = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $username, $securePwd
 
         $departedUser = '{departedUser}'
-        Invoke-Command -ComputerName "doidc02" -Credential $credentials -ScriptBlock {{
+        Invoke-Command -ComputerName "ServerName" -Credential $credentials -ScriptBlock {{
             param (
                 $departedUser
             )
@@ -205,7 +205,7 @@ def departed():
     $login = $name[1]
 
     $username = '{departedUser}'
-    Invoke-Command -ComputerName "doidc02" -Credential $credentials -ScriptBlock {{
+    Invoke-Command -ComputerName "ServerName" -Credential $credentials -ScriptBlock {{
         param (
             $username,
             $login,
@@ -239,23 +239,23 @@ def departed():
         Move-ADObject -Identity $username_details.distinguishedName -TargetPath 'OU=Departed Users,DC=DOI,DC=NYCNET' -Credential $credentials
 
         $Folder_Name = $username
-        $Path1 = "\\doiarchive01\\home_archive\\$Folder_Name"
+        $Path1 = "\\ServerName\\home_archive\\$Folder_Name"
         New-Item -Path $Path1 -ItemType Directory 
-        $Path2 = "\\doiarchive01\\profile_archive\\$Folder_Name"
+        $Path2 = "\\ServerName\\profile_archive\\$Folder_Name"
         New-Item -Path $Path2 -ItemType Directory 
 
-        $Source_Home_Folder = "\\doi.nycnet\\doi_share\\home_folder\\$Folder_Name"
-        $Destination_Home_Folder = "\\DOIARCHIVE01\\HOME_ARCHIVE\\$Folder_name"
+        $Source_Home_Folder = "\\ServerName\\doi_share\\home_folder\\$Folder_Name"
+        $Destination_Home_Folder = "\\ServerName\\HOME_ARCHIVE\\$Folder_name"
 
-        $Source_Profile_folder = "\\DOIPROFILE01\\USER_FOLDER_REDIRECTION\\$Folder_name"
-        $Destination_Profile_folder = "\\DOIARCHIVE01\\PROFILE_ARCHIVE\\$Folder_name"
+        $Source_Profile_folder = "\\ServerName\\USER_FOLDER_REDIRECTION\\$Folder_name"
+        $Destination_Profile_folder = "\\ServerName\\PROFILE_ARCHIVE\\$Folder_name"
 
         #Robocopy Execute
         robocopy $Source_Home_Folder $Destination_Home_Folder /COPYALL /Z /E /W:1 /R:2 /tee /Move 
         robocopy $Source_Profile_folder $Destination_Profile_folder /COPYALL /Z /E /W:1 /R:2 /tee /Move 
 
         #Sends Email with user's memberships
-        $EmailTo = "desktoptechs@doi.nyc.gov", "SecurityAlert@doi.nyc.gov"
+        $EmailTo = "desktoptechs@domain.com", "SecurityAlert@domain.com"
         $fullname = $username_details.Name
         Send-MailMessage -From $emailfrom -To $EmailTo -Subject "Departed User $fullname" -body "The Departed account $fullname is now completed. Their home and profile folders have been moved to the Archived Server. Here is a list of Group Memberships he/she was assigned to: `n$assignedgroups" -SmtpServer 'smtp.doi.nycnet' -Port '25'
 
