@@ -134,7 +134,7 @@ def submit():
             try {{
                 $username_details = Get-ADUser -Identity $departedUser -ErrorAction Stop
                 $name_string = $username_details.Name.ToString()
-                if ($username_details.distinguishedName -eq "CN=$name_string,OU=Departed Users,DC=DOI,DC=NYCNET"){{
+                if ($username_details.distinguishedName -eq "CN=$name_string,OU=Departed Users,DC=DistinguishedName"){{
                     Write-Output "The user $($name_string) is already departed"
                     exit
                 }}
@@ -228,7 +228,7 @@ def departed():
         $membershipgroups = Get-ADPrincipalGroupMembership -Identity $username
 
         foreach ($membership in $membershipgroups){{
-            if ($membership.distinguishedName -eq 'CN=Domain Users,OU=General SG,OU=Security Groups,OU=Groups,DC=DOI,DC=NYCNET')
+            if ($membership.distinguishedName -eq 'CN=Domain Users,OU=General SG,OU=Security Groups,OU=Groups,DC=DistinguishedName')
             {{
             continue
             }}
@@ -236,7 +236,7 @@ def departed():
         }}
 
         $username_details = Get-ADUser -Identity $username
-        Move-ADObject -Identity $username_details.distinguishedName -TargetPath 'OU=Departed Users,DC=DOI,DC=NYCNET' -Credential $credentials
+        Move-ADObject -Identity $username_details.distinguishedName -TargetPath 'OU=Departed Users,DC=DistinguishedName' -Credential $credentials
 
         $Folder_Name = $username
         $Path1 = "\\ServerName\\home_archive\\$Folder_Name"
